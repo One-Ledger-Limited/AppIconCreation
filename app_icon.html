@@ -930,12 +930,22 @@
                 ctx.fillStyle = currentBgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // 計算圖片位置和大小（按比例縮放）
-                const widthRatio = sizeInfo.width / 300;
-                const heightRatio = sizeInfo.height / 500;
+                // 計算圖片位置和大小（保持原始比例）
                 const scaleValue = currentImageScale / 100;
-                const scaledWidth = splashImage.width * scaleValue * widthRatio;
-                const scaledHeight = splashImage.height * scaleValue * heightRatio;
+                const aspectRatio = splashImage.width / splashImage.height;
+                let scaledWidth, scaledHeight;
+                
+                // 按比例計算尺寸，確保圖片不會變形
+                if (aspectRatio > 1) {
+                    // 圖片較寬
+                    scaledWidth = Math.min(canvas.width * 0.8, splashImage.width * scaleValue); // 最大佔畫布80%
+                    scaledHeight = scaledWidth / aspectRatio;
+                } else {
+                    // 圖片較高或正方
+                    scaledHeight = Math.min(canvas.height * 0.8, splashImage.height * scaleValue); // 最大佔畫布80%
+                    scaledWidth = scaledHeight * aspectRatio;
+                }
+                
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
                 const drawX = centerX - scaledWidth / 2;
@@ -1007,11 +1017,22 @@
                 ctx.fillStyle = currentBgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                const widthRatio = sizeInfo.width / 300;
-                const heightRatio = sizeInfo.height / 500;
+                // 計算圖片位置和大小（保持原始比例）
                 const scaleValue = currentImageScale / 100;
-                const scaledWidth = splashImage.width * scaleValue * widthRatio;
-                const scaledHeight = splashImage.height * scaleValue * heightRatio;
+                const aspectRatio = splashImage.width / splashImage.height;
+                let scaledWidth, scaledHeight;
+                
+                // 按比例計算尺寸，確保圖片不會變形
+                if (aspectRatio > 1) {
+                    // 圖片較寬
+                    scaledWidth = Math.min(canvas.width * 0.8, splashImage.width * scaleValue); // 最大佔畫布80%
+                    scaledHeight = scaledWidth / aspectRatio;
+                } else {
+                    // 圖片較高或正方
+                    scaledHeight = Math.min(canvas.height * 0.8, splashImage.height * scaleValue); // 最大佔畫布80%
+                    scaledWidth = scaledHeight * aspectRatio;
+                }
+                
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
                 const drawX = centerX - scaledWidth / 2;
