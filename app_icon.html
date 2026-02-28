@@ -933,9 +933,10 @@
                 // 計算圖片位置和大小（按比例縮放）
                 const widthRatio = sizeInfo.width / 300;
                 const heightRatio = sizeInfo.height / 500;
+                const uniformRatio = Math.min(widthRatio, heightRatio);
                 const scaleValue = currentImageScale / 100;
-                const scaledWidth = splashImage.width * scaleValue * widthRatio;
-                const scaledHeight = splashImage.height * scaleValue * heightRatio;
+                const scaledWidth = splashImage.width * scaleValue * uniformRatio;
+                const scaledHeight = splashImage.height * scaleValue * uniformRatio;
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
                 const drawX = centerX - scaledWidth / 2;
@@ -1009,9 +1010,10 @@
                 
                 const widthRatio = sizeInfo.width / 300;
                 const heightRatio = sizeInfo.height / 500;
+                const uniformRatio = Math.min(widthRatio, heightRatio);
                 const scaleValue = currentImageScale / 100;
-                const scaledWidth = splashImage.width * scaleValue * widthRatio;
-                const scaledHeight = splashImage.height * scaleValue * heightRatio;
+                const scaledWidth = splashImage.width * scaleValue * uniformRatio;
+                const scaledHeight = splashImage.height * scaleValue * uniformRatio;
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
                 const drawX = centerX - scaledWidth / 2;
