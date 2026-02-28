@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android App Icon & Splash Screen Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+        
+        .upload-area:hover {
+            background: #eef2ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.active {
+            background: #e8f4ff;
+            border-color: #4a90e2;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .editor-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        .editor-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .editor-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        #editorCanvas {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .tools-container {
+            width: 300px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .tool-group {
+            margin-bottom: 20px;
+        }
+        
+        .tool-group h3 {
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 16px;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+        
+        .slider-container {
+            margin: 10px 0;
+        }
+        
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .slider-container input[type="range"] {
+            width: 100%;
+        }
+        
+        .text-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .preview-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .icon-item {
+            text-align: center;
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+        
+        .icon-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .icon-preview {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .splash-preview {
+            width: 120px;
+            height: 200px;
+            margin: 0 auto 15px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .icon-preview img,
+        .splash-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .icon-info {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .icon-size {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .download-all {
+            display: block;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .download-all:hover {
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .tools-container {
+                width: 100%;
+            }
+            
+            .icon-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .upload-area {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Android App Icon & Splash Screen Generator</h1>
+            <p class="subtitle">上傳圖片並編輯，生成不同解析度的 Android App Icon 和 Splash Screen</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="icon">App Icon</button>
+            <button class="tab-btn" data-tab="splash">Splash Screen</button>
+        </div>
+        
+        <!-- App Icon Tab -->
+        <div class="tab-content active" id="iconTab">
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">點擊此區域或拖放圖片到這裡</p>
+                    <p class="upload-text">支援 JPG, PNG, GIF 格式</p>
+                    <button class="upload-btn" id="browseBtn">選擇檔案</button>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+            </section>
+            
+            <section class="preview-section" id="previewSection">
+                <div class="preview-header">
+                    <h2>預覽圖片</h2>
+                </div>
+                <img id="imagePreview" alt="預覽圖片">
+                <button class="generate-btn" id="generateIconBtn">生成 Android Icon</button>
+            </section>
+            
+            <section class="results-section" id="iconResultsSection">
+                <div class="results-header">
+                    <h2>生成的 Android Icon</h2>
+                    <p>點擊各個圖示下載對應解析度的檔案</p>
+                </div>
+                <div class="icon-grid" id="iconGrid">
+                    <!-- Icon items will be generated here -->
+                </div>
+                <button class="download-all" id="downloadAllIconsBtn">下載所有 Icon</button>
+            </section>
+        </div>
+        
+        <!-- Splash Screen Tab -->
+        <div class="tab-content" id="splashTab">
+            <section class="upload-section">
+                <div class="upload-area" id="splashUploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">點擊此區域或拖放圖片到這裡</p>
+                    <p class="upload-text">支援 JPG, PNG, GIF 格式</p>
+                    <button class="upload-btn" id="splashBrowseBtn">選擇檔案</button>
+                    <input type="file" id="splashFileInput" accept="image/*">
+                </div>
+            </section>
+            
+            <section class="editor-section" id="editorSection">
+                <div class="editor-header">
+                    <h2>編輯 Splash Screen</h2>
+                </div>
+                <div class="editor-container">
+                    <div class="canvas-container">
+                        <canvas id="editorCanvas" width="300" height="500"></canvas>
+                    </div>
+                    <div class="tools-container">
+                        <div class="tool-group">
+                            <h3>背景顏色</h3>
+                            <div class="color-picker">
+                                <div class="color-option selected" style="background-color: #ffffff;" data-color="#ffffff"></div>
+                                <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                                <div class="color-option" style="background-color: #667eea;" data-color="#667eea"></div>
+                                <div class="color-option" style="background-color: #764ba2;" data-color="#764ba2"></div>
+                                <div class="color-option" style="background-color: #4CAF50;" data-color="#4CAF50"></div>
+                                <div class="color-option" style="background-color: #ff6b6b;" data-color="#ff6b6b"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="tool-group">
+                            <h3>圖片編輯</h3>
+                            <div class="slider-container">
+                                <label for="imageScale">圖片縮放: <span id="imageScaleValue">100</span>%</label>
+                                <input type="range" id="imageScale" min="10" max="300" value="100">
+                            </div>
+                        </div>
+                        
+                        <div class="tool-group">
+                            <h3>文字設定</h3>
+                            <input type="text" id="textContent" class="text-input" placeholder="輸入文字內容" value="Your App Name">
+                            <div class="slider-container">
+                                <label for="textSize">文字大小: <span id="textSizeValue">24</span>px</label>
+                                <input type="range" id="textSize" min="10" max="60" value="24">
+                            </div>
+                            <div class="slider-container">
+                                <label for="textY">文字位置: <span id="textYValue">400</span></label>
+                                <input type="range" id="textY" min="0" max="500" value="400">
+                            </div>
+                            <div class="color-picker">
+                                <div class="color-option selected" style="background-color: #000000;" data-color="#000000" data-type="text"></div>
+                                <div class="color-option" style="background-color: #ffffff;" data-color="#ffffff" data-type="text"></div>
+                                <div class="color-option" style="background-color: #667eea;" data-color="#667eea" data-type="text"></div>
+                                <div class="color-option" style="background-color: #ff6b6b;" data-color="#ff6b6b" data-type="text"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="action-btn reset-btn" id="resetBtn">重設</button>
+                            <button class="action-btn generate-btn" id="generateSplashBtn">生成 Splash</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="results-section" id="splashResultsSection">
+                <div class="results-header">
+                    <h2>生成的 Android Splash Screen</h2>
+                    <p>點擊各個圖示下載對應解析度的檔案</p>
+                </div>
+                <div class="icon-grid" id="splashGrid">
+                    <!-- Splash items will be generated here -->
+                </div>
+                <button class="download-all" id="downloadAllSplashBtn">下載所有 Splash Screen</button>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const previewSection = document.getElementById('previewSection');
+        const imagePreview = document.getElementById('imagePreview');
+        const generateIconBtn = document.getElementById('generateIconBtn');
+        const iconResultsSection = document.getElementById('iconResultsSection');
+        const iconGrid = document.getElementById('iconGrid');
+        const downloadAllIconsBtn = document.getElementById('downloadAllIconsBtn');
+        
+        // Splash Screen 元素
+        const splashUploadArea = document.getElementById('splashUploadArea');
+        const splashFileInput = document.getElementById('splashFileInput');
+        const splashBrowseBtn = document.getElementById('splashBrowseBtn');
+        const editorSection = document.getElementById('editorSection');
+        const editorCanvas = document.getElementById('editorCanvas');
+        const ctx = editorCanvas.getContext('2d');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const imageScale = document.getElementById('imageScale');
+        const imageScaleValue = document.getElementById('imageScaleValue');
+        const textContent = document.getElementById('textContent');
+        const textSize = document.getElementById('textSize');
+        const textSizeValue = document.getElementById('textSizeValue');
+        const textY = document.getElementById('textY');
+        const textYValue = document.getElementById('textYValue');
+        const resetBtn = document.getElementById('resetBtn');
+        const generateSplashBtn = document.getElementById('generateSplashBtn');
+        const splashResultsSection = document.getElementById('splashResultsSection');
+        const splashGrid = document.getElementById('splashGrid');
+        const downloadAllSplashBtn = document.getElementById('downloadAllSplashBtn');
+        
+        // Android icon 規格
+        const androidIconSizes = [
+            { name: 'mipmap-mdpi', size: 48, density: 'mdpi' },
+            { name: 'mipmap-hdpi', size: 72, density: 'hdpi' },
+            { name: 'mipmap-xhdpi', size: 96, density: 'xhdpi' },
+            { name: 'mipmap-xxhdpi', size: 144, density: 'xxhdpi' },
+            { name: 'mipmap-xxxhdpi', size: 192, density: 'xxxhdpi' }
+        ];
+        
+        // Android splash screen 規格 (常見解析度)
+        const androidSplashSizes = [
+            { name: 'drawable-ldpi', width: 240, height: 320, density: 'ldpi' },
+            { name: 'drawable-mdpi', width: 320, height: 480, density: 'mdpi' },
+            { name: 'drawable-hdpi', width: 480, height: 800, density: 'hdpi' },
+            { name: 'drawable-xhdpi', width: 720, height: 1280, density: 'xhdpi' },
+            { name: 'drawable-xxhdpi', width: 960, height: 1600, density: 'xxhdpi' },
+            { name: 'drawable-xxxhdpi', width: 1280, height: 1920, density: 'xxxhdpi' }
+        ];
+        
+        let originalImage = null;
+        let splashImage = null;
+        let currentBgColor = '#ffffff';
+        let currentImageScale = 100;
+        let currentText = 'Your App Name';
+        let currentTextSize = 24;
+        let currentTextY = 400;
+        let currentTextColor = '#000000';
+        
+        // Tab 切換
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                
+                // 更新按鈕狀態
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 顯示對應內容
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tab}Tab`).classList.add('active');
+            });
+        });
+        
+        // App Icon 功能
+        browseBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        generateIconBtn.addEventListener('click', generateIcons);
+        downloadAllIconsBtn.addEventListener('click', downloadAllIcons);
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.target.closest('.upload-area').classList.add('active');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.target.closest('.upload-area').classList.remove('active');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            const uploadArea = e.target.closest('.upload-area');
+            uploadArea.classList.remove('active');
+            
+            if (e.dataTransfer.files.length) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/')) {
+                    if (uploadArea === document.getElementById('uploadArea')) {
+                        processImage(file, 'icon');
+                    } else {
+                        processImage(file, 'splash');
+                    }
+                }
+            }
+        }
+        
+        function handleFileSelect(e) {
+            if (e.target.files.length) {
+                const file = e.target.files[0];
+                if (file.type.startsWith('image/')) {
+                    if (e.target === fileInput) {
+                        processImage(file, 'icon');
+                    } else {
+                        processImage(file, 'splash');
+                    }
+                }
+            }
+        }
+        
+        function processImage(file, type) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    if (type === 'icon') {
+                        originalImage = img;
+                        imagePreview.src = e.target.result;
+                        previewSection.style.display = 'block';
+                        iconResultsSection.style.display = 'none';
+                    } else {
+                        splashImage = img;
+                        editorSection.style.display = 'block';
+                        splashResultsSection.style.display = 'none';
+                        renderEditorCanvas();
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function generateIcons() {
+            if (!originalImage) return;
+            
+            iconGrid.innerHTML = '';
+            
+            androidIconSizes.forEach(sizeInfo => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = sizeInfo.size;
+                canvas.height = sizeInfo.size;
+                
+                // 清除畫布並設定背景為透明
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 計算縮放比例以保持圖片比例並居中
+                const aspectRatio = originalImage.width / originalImage.height;
+                let drawWidth, drawHeight, offsetX, offsetY;
+                
+                if (aspectRatio > 1) {
+                    // 圖片較寬
+                    drawWidth = sizeInfo.size;
+                    drawHeight = sizeInfo.size / aspectRatio;
+                    offsetX = 0;
+                    offsetY = (sizeInfo.size - drawHeight) / 2;
+                } else {
+                    // 圖片較高或正方形
+                    drawHeight = sizeInfo.size;
+                    drawWidth = sizeInfo.size * aspectRatio;
+                    offsetX = (sizeInfo.size - drawWidth) / 2;
+                    offsetY = 0;
+                }
+                
+                // 繪製圖片
+                ctx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
+                
+                // 創建 icon item
+                const iconItem = document.createElement('div');
+                iconItem.className = 'icon-item';
+                
+                const iconPreview = document.createElement('div');
+                iconPreview.className = 'icon-preview';
+                
+                const iconImg = document.createElement('img');
+                iconImg.src = canvas.toDataURL('image/png');
+                iconImg.alt = `${sizeInfo.name} icon`;
+                iconImg.onclick = () => downloadIcon(canvas, sizeInfo);
+                
+                iconPreview.appendChild(iconImg);
+                
+                const iconInfo = document.createElement('div');
+                iconInfo.className = 'icon-info';
+                iconInfo.innerHTML = `
+                    <div class="icon-size">${sizeInfo.size}x${sizeInfo.size}</div>
+                    <div>${sizeInfo.density}</div>
+                    <div>${sizeInfo.name}</div>
+                `;
+                
+                iconItem.appendChild(iconPreview);
+                iconItem.appendChild(iconInfo);
+                iconGrid.appendChild(iconItem);
+            });
+            
+            iconResultsSection.style.display = 'block';
+        }
+        
+        function downloadIcon(canvas, sizeInfo) {
+            const link = document.createElement('a');
+            link.download = `ic_launcher_${sizeInfo.density}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadAllIcons() {
+            if (!originalImage) return;
+            
+            androidIconSizes.forEach(sizeInfo => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = sizeInfo.size;
+                canvas.height = sizeInfo.size;
+                
+                const aspectRatio = originalImage.width / originalImage.height;
+                let drawWidth, drawHeight, offsetX, offsetY;
+                
+                if (aspectRatio > 1) {
+                    drawWidth = sizeInfo.size;
+                    drawHeight = sizeInfo.size / aspectRatio;
+                    offsetX = 0;
+                    offsetY = (sizeInfo.size - drawHeight) / 2;
+                } else {
+                    drawHeight = sizeInfo.size;
+                    drawWidth = sizeInfo.size * aspectRatio;
+                    offsetX = (sizeInfo.size - drawWidth) / 2;
+                    offsetY = 0;
+                }
+                
+                ctx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
+                
+                const link = document.createElement('a');
+                link.download = `ic_launcher_${sizeInfo.density}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            alert('所有 App Icon 已開始下載！請檢查您的下載資料夾。');
+        }
+        
+        // Splash Screen 功能
+        splashBrowseBtn.addEventListener('click', () => splashFileInput.click());
+        splashFileInput.addEventListener('change', handleFileSelect);
+        splashUploadArea.addEventListener('dragover', handleDragOver);
+        splashUploadArea.addEventListener('dragleave', handleDragLeave);
+        splashUploadArea.addEventListener('drop', handleDrop);
+        
+        // 編輯器功能
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const type = option.dataset.type;
+                
+                if (type === 'text') {
+                    // 文字顏色
+                    document.querySelectorAll('.color-option[data-type="text"]').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    currentTextColor = option.dataset.color;
+                } else {
+                    // 背景顏色
+                    document.querySelectorAll('.color-option:not([data-type])').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    currentBgColor = option.dataset.color;
+                }
+                
+                renderEditorCanvas();
+            });
+        });
+        
+        imageScale.addEventListener('input', () => {
+            currentImageScale = parseInt(imageScale.value);
+            imageScaleValue.textContent = currentImageScale;
+            renderEditorCanvas();
+        });
+        
+        textContent.addEventListener('input', () => {
+            currentText = textContent.value;
+            renderEditorCanvas();
+        });
+        
+        textSize.addEventListener('input', () => {
+            currentTextSize = parseInt(textSize.value);
+            textSizeValue.textContent = currentTextSize;
+            renderEditorCanvas();
+        });
+        
+        textY.addEventListener('input', () => {
+            currentTextY = parseInt(textY.value);
+            textYValue.textContent = currentTextY;
+            renderEditorCanvas();
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            currentBgColor = '#ffffff';
+            currentImageScale = 100;
+            currentText = 'Your App Name';
+            currentTextSize = 24;
+            currentTextY = 400;
+            currentTextColor = '#000000';
+            
+            // 重設 UI
+            document.querySelectorAll('.color-option:not([data-type])').forEach(opt => {
+                if (opt.dataset.color === currentBgColor) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+            
+            document.querySelectorAll('.color-option[data-type="text"]').forEach(opt => {
+                if (opt.dataset.color === currentTextColor) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+            
+            imageScale.value = currentImageScale;
+            imageScaleValue.textContent = currentImageScale;
+            textContent.value = currentText;
+            textSize.value = currentTextSize;
+            textSizeValue.textContent = currentTextSize;
+            textY.value = currentTextY;
+            textYValue.textContent = currentTextY;
+            
+            renderEditorCanvas();
+        });
+        
+        generateSplashBtn.addEventListener('click', generateSplashScreens);
+        downloadAllSplashBtn.addEventListener('click', downloadAllSplashScreens);
+        
+        function renderEditorCanvas() {
+            if (!splashImage) return;
+            
+            // 清除畫布
+            ctx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+            
+            // 設定背景顏色
+            ctx.fillStyle = currentBgColor;
+            ctx.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
+            
+            // 計算圖片位置和大小
+            const scaleValue = currentImageScale / 100;
+            const scaledWidth = splashImage.width * scaleValue;
+            const scaledHeight = splashImage.height * scaleValue;
+            const centerX = editorCanvas.width / 2;
+            const centerY = editorCanvas.height / 2;
+            const drawX = centerX - scaledWidth / 2;
+            const drawY = centerY - scaledHeight / 2;
+            
+            // 繪製圖片
+            ctx.drawImage(splashImage, drawX, drawY, scaledWidth, scaledHeight);
+            
+            // 繪製文字
+            if (currentText.trim()) {
+                ctx.font = `${currentTextSize}px Arial`;
+                ctx.fillStyle = currentTextColor;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(currentText, editorCanvas.width / 2, currentTextY);
+            }
+        }
+        
+        function generateSplashScreens() {
+            if (!splashImage) return;
+            
+            splashGrid.innerHTML = '';
+            
+            androidSplashSizes.forEach(sizeInfo => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = sizeInfo.width;
+                canvas.height = sizeInfo.height;
+                
+                // 設定背景顏色
+                ctx.fillStyle = currentBgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 計算圖片位置和大小（按比例縮放）
+                const widthRatio = sizeInfo.width / 300;
+                const heightRatio = sizeInfo.height / 500;
+                const scaleValue = currentImageScale / 100;
+                const scaledWidth = splashImage.width * scaleValue * widthRatio;
+                const scaledHeight = splashImage.height * scaleValue * heightRatio;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const drawX = centerX - scaledWidth / 2;
+                const drawY = centerY - scaledHeight / 2;
+                
+                // 繪製圖片
+                ctx.drawImage(splashImage, drawX, drawY, scaledWidth, scaledHeight);
+                
+                // 繪製文字
+                if (currentText.trim()) {
+                    const textScale = Math.min(widthRatio, heightRatio);
+                    const scaledTextSize = currentTextSize * textScale;
+                    const scaledTextY = currentTextY * heightRatio;
+                    
+                    ctx.font = `${Math.max(12, scaledTextSize)}px Arial`;
+                    ctx.fillStyle = currentTextColor;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(currentText, canvas.width / 2, scaledTextY);
+                }
+                
+                // 創建 splash item
+                const splashItem = document.createElement('div');
+                splashItem.className = 'icon-item';
+                
+                const splashPreview = document.createElement('div');
+                splashPreview.className = 'splash-preview';
+                
+                const splashImg = document.createElement('img');
+                splashImg.src = canvas.toDataURL('image/png');
+                splashImg.alt = `${sizeInfo.name} splash`;
+                splashImg.onclick = () => downloadSplash(canvas, sizeInfo);
+                
+                splashPreview.appendChild(splashImg);
+                
+                const splashInfo = document.createElement('div');
+                splashInfo.className = 'icon-info';
+                splashInfo.innerHTML = `
+                    <div class="icon-size">${sizeInfo.width}x${sizeInfo.height}</div>
+                    <div>${sizeInfo.density}</div>
+                    <div>${sizeInfo.name}</div>
+                `;
+                
+                splashItem.appendChild(splashPreview);
+                splashItem.appendChild(splashInfo);
+                splashGrid.appendChild(splashItem);
+            });
+            
+            splashResultsSection.style.display = 'block';
+        }
+        
+        function downloadSplash(canvas, sizeInfo) {
+            const link = document.createElement('a');
+            link.download = `splash_${sizeInfo.density}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadAllSplashScreens() {
+            if (!splashImage) return;
+            
+            androidSplashSizes.forEach(sizeInfo => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = sizeInfo.width;
+                canvas.height = sizeInfo.height;
+                
+                ctx.fillStyle = currentBgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                const widthRatio = sizeInfo.width / 300;
+                const heightRatio = sizeInfo.height / 500;
+                const scaleValue = currentImageScale / 100;
+                const scaledWidth = splashImage.width * scaleValue * widthRatio;
+                const scaledHeight = splashImage.height * scaleValue * heightRatio;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const drawX = centerX - scaledWidth / 2;
+                const drawY = centerY - scaledHeight / 2;
+                
+                ctx.drawImage(splashImage, drawX, drawY, scaledWidth, scaledHeight);
+                
+                if (currentText.trim()) {
+                    const textScale = Math.min(widthRatio, heightRatio);
+                    const scaledTextSize = currentTextSize * textScale;
+                    const scaledTextY = currentTextY * heightRatio;
+                    
+                    ctx.font = `${Math.max(12, scaledTextSize)}px Arial`;
+                    ctx.fillStyle = currentTextColor;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(currentText, canvas.width / 2, scaledTextY);
+                }
+                
+                const link = document.createElement('a');
+                link.download = `splash_${sizeInfo.density}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            alert('所有 Splash Screen 已開始下載！請檢查您的下載資料夾。');
+        }
+    </script>
+</body>
+</html>
